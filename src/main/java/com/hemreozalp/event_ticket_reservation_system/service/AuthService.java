@@ -3,7 +3,7 @@ package com.hemreozalp.event_ticket_reservation_system.service;
 import com.hemreozalp.event_ticket_reservation_system.dto.AuthResponse;
 import com.hemreozalp.event_ticket_reservation_system.dto.LoginRequest;
 import com.hemreozalp.event_ticket_reservation_system.dto.RegisterRequest;
-import com.hemreozalp.event_ticket_reservation_system.entity.Role;
+import com.hemreozalp.event_ticket_reservation_system.entity.enums.Role;
 import com.hemreozalp.event_ticket_reservation_system.entity.User;
 import com.hemreozalp.event_ticket_reservation_system.repository.UserRepository;
 import com.hemreozalp.event_ticket_reservation_system.security.CustomUserDetailsService;

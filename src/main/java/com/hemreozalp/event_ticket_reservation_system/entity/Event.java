@@ -1,42 +1,52 @@
 package com.hemreozalp.event_ticket_reservation_system.entity;
 
-import com.hemreozalp.event_ticket_reservation_system.entity.enums.Role;
+import com.hemreozalp.event_ticket_reservation_system.entity.enums.EventStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users")
+@Table(name = "events")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class Event {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "UUID")
     private UUID id;
 
-    @Column(unique = true, nullable = false)
-    private String username;
+    @Column(nullable = false, length = 100)
+    private String title;
 
-    @Column(unique = true, nullable = false)
-    private String email;
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(length = 255)
+    private String location;
 
     @Column(nullable = false)
-    private String password;
+    private LocalDateTime startDate;
+
+    @Column(nullable = false)
+    private LocalDateTime endDate;
+
+    @Column(nullable = false)
+    private Integer capacity;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;
-
-    @Column(nullable = false)
-    private boolean enabled;
+    private EventStatus status;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
