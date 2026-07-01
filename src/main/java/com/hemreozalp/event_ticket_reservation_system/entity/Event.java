@@ -20,7 +20,7 @@ import java.util.UUID;
 public class Event {
 
     @Id
-    @Column(columnDefinition = "UUID")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false, length = 100)
@@ -29,7 +29,7 @@ public class Event {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(length = 255)
+    @Column(nullable = false, length = 255)
     private String location;
 
     @Column(nullable = false)
@@ -41,7 +41,7 @@ public class Event {
     @Column(nullable = false)
     private Integer capacity;
 
-    @Column(precision = 10, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)

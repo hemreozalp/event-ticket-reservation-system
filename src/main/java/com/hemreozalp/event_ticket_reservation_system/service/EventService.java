@@ -46,16 +46,11 @@ public class EventService {
             throw new IllegalArgumentException("Invalid date range");
         }
 
-        event.setTitle(request.title());
-        event.setDescription(request.description());
-        event.setLocation(request.location());
-        event.setStartDate(request.startDate());
-        event.setEndDate(request.endDate());
-        event.setCapacity(request.capacity());
-        event.setPrice(request.price());
-        event.setStatus(request.status());
+        eventMapper.updateEntity(request, event);
 
-        return eventMapper.toResponse(event);
+        Event saved = eventRepository.save(event);
+
+        return eventMapper.toResponse(saved);
     }
 
     public void delete(UUID id) {
