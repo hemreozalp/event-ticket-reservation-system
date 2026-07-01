@@ -1,11 +1,16 @@
 package com.hemreozalp.event_ticket_reservation_system.controller;
 
 import com.hemreozalp.event_ticket_reservation_system.dto.CreateEventRequest;
+import com.hemreozalp.event_ticket_reservation_system.dto.EventFilter;
 import com.hemreozalp.event_ticket_reservation_system.dto.EventResponse;
 import com.hemreozalp.event_ticket_reservation_system.dto.UpdateEventRequest;
 import com.hemreozalp.event_ticket_reservation_system.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,7 +52,11 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EventResponse>> getAll() {
-        return ResponseEntity.ok(eventService.getAll());
+    public ResponseEntity<Page<EventResponse>> getAll(
+            EventFilter filter,
+            @PageableDefault(size = 10, sort = "startDate", direction = Sort.Direction.ASC)
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(eventService.getAll(filter, pageable));
     }
 }

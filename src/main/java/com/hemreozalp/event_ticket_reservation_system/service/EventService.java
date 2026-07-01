@@ -1,13 +1,17 @@
 package com.hemreozalp.event_ticket_reservation_system.service;
 
 import com.hemreozalp.event_ticket_reservation_system.dto.CreateEventRequest;
+import com.hemreozalp.event_ticket_reservation_system.dto.EventFilter;
 import com.hemreozalp.event_ticket_reservation_system.dto.EventResponse;
 import com.hemreozalp.event_ticket_reservation_system.dto.UpdateEventRequest;
 import com.hemreozalp.event_ticket_reservation_system.entity.Event;
 import com.hemreozalp.event_ticket_reservation_system.entity.enums.EventStatus;
 import com.hemreozalp.event_ticket_reservation_system.mapper.EventMapper;
 import com.hemreozalp.event_ticket_reservation_system.repository.EventRepository;
+import com.hemreozalp.event_ticket_reservation_system.repository.EventSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,10 +75,10 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventResponse> getAll() {
-        return eventRepository.findAll()
-                .stream()
-                .map(eventMapper::toResponse)
-                .toList();
+    public Page<EventResponse> getAll(EventFilter filter, Pageable pageable) {
+        return eventRepository.findAll(
+                        EventSpecification.filter(filter),
+                        pageable)
+                .map(eventMapper::toResponse);
     }
 }
