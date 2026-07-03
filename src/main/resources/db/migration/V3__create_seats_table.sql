@@ -6,7 +6,7 @@ CREATE TABLE seat (
 
     status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',
 
-    event_id BIGINT NOT NULL,
+    event_id UUID NOT NULL,
 
     CONSTRAINT fk_seat_event
         FOREIGN KEY (event_id)

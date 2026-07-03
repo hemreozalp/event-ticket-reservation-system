@@ -1,5 +1,6 @@
 package com.hemreozalp.event_ticket_reservation_system.seat.entity;
 
+import com.hemreozalp.event_ticket_reservation_system.event.entity.Event;
 import jakarta.persistence.*;
 
 @Entity
