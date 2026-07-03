@@ -10,7 +10,7 @@ CREATE TABLE seat (
 
     CONSTRAINT fk_seat_event
         FOREIGN KEY (event_id)
-        REFERENCES event(id)
+        REFERENCES events(id)
         ON DELETE CASCADE
 );
 
