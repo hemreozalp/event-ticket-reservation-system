@@ -9,6 +9,8 @@ import com.hemreozalp.event_ticket_reservation_system.event.entity.EventStatus;
 import com.hemreozalp.event_ticket_reservation_system.event.mapper.EventMapper;
 import com.hemreozalp.event_ticket_reservation_system.event.repository.EventRepository;
 import com.hemreozalp.event_ticket_reservation_system.event.repository.EventSpecification;
+import com.hemreozalp.event_ticket_reservation_system.seat.entity.SeatStatus;
+import com.hemreozalp.event_ticket_reservation_system.seat.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +25,7 @@ import java.util.UUID;
 public class EventService {
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
+    private final SeatRepository seatRepository;
 
     public EventResponse create(CreateEventRequest request) {
         if (request.endDate().isBefore(request.startDate())) {
@@ -74,5 +77,30 @@ public class EventService {
                         EventSpecification.filter(filter),
                         pageable)
                 .map(eventMapper::toResponse);
+    }
+
+    private EventResponse toResponse(Event event) {
+
+        long availableSeats = seatRepository.countByEventIdAndStatus(
+                event.getId(),
+                SeatStatus.AVAILABLE
+        );
+
+        EventResponse response = eventMapper.toResponse(event);
+
+        return new EventResponse(
+                response.id(),
+                response.title(),
+                response.description(),
+                response.location(),
+                response.startDate(),
+                response.endDate(),
+                response.capacity(),
+                availableSeats,
+                response.price(),
+                response.status(),
+                response.createdAt(),
+                response.updatedAt()
+        );
     }
 }

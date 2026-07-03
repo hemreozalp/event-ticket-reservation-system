@@ -16,6 +16,7 @@ public record EventResponse(
         LocalDateTime endDate,
 
         Integer capacity,
+        Long availableSeats,
         BigDecimal price,
 
         EventStatus status,
