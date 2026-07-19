@@ -6,8 +6,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record ReservationResponse(
-        UUID uuid,
+        UUID id,
         UUID eventId,
+        Long seatId,
         ReservationStatus status,
         LocalDateTime reservationTime
 ) {

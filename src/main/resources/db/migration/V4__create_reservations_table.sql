@@ -1,7 +1,7 @@
 CREATE TABLE reservations (
     id UUID PRIMARY KEY,
 
-    user_id BIGINT NOT NULL,
+    user_id UUID NOT NULL,
     event_id UUID NOT NULL,
     seat_id BIGINT NOT NULL,
 
