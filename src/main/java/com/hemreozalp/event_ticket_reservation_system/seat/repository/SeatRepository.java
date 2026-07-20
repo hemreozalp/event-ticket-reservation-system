@@ -14,4 +14,6 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
     List<Seat> findByEventId(UUID eventId);
 
     long countByEventIdAndStatus(UUID eventId, SeatStatus status);
+
+    long countByStatus(SeatStatus status);
 }
