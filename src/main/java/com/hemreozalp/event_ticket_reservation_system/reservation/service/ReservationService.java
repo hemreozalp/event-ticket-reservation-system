@@ -1,5 +1,6 @@
 package com.hemreozalp.event_ticket_reservation_system.reservation.service;
 
+import com.hemreozalp.event_ticket_reservation_system.notification.NotificationService;
 import com.hemreozalp.event_ticket_reservation_system.payment.entity.Payment;
 import com.hemreozalp.event_ticket_reservation_system.payment.entity.PaymentStatus;
 import com.hemreozalp.event_ticket_reservation_system.payment.service.PaymentService;
@@ -30,6 +31,7 @@ public class ReservationService {
     private final UserRepository userRepository;
     private final SeatRepository seatRepository;
     private final PaymentService paymentService;
+    private final NotificationService notificationService;
 
     public ReservationResponse reserve(ReserveSeatRequest request) {
 
@@ -61,20 +63,24 @@ public class ReservationService {
 
         Payment payment = paymentService.createPayment(reservation);
 
-        if (payment.getStatus() == PaymentStatus.SUCCESS) {
+        boolean paymentSucceeded = payment.getStatus() == PaymentStatus.SUCCESS;
 
+        if (paymentSucceeded) {
             reservation.setStatus(ReservationStatus.CONFIRMED);
             seat.setStatus(SeatStatus.RESERVED);
-
         } else {
-
             reservation.setStatus(ReservationStatus.CANCELLED);
             seat.setStatus(SeatStatus.AVAILABLE);
-
         }
 
         reservationRepository.save(reservation);
         seatRepository.save(seat);
+
+        if (paymentSucceeded) {
+            notificationService.sendReservationConfirmed(user, reservation);
+        } else {
+            notificationService.sendPaymentFailed(user, seat.getEvent());
+        }
 
         return reservationMapper.toResponse(reservation);
     }
@@ -98,5 +104,10 @@ public class ReservationService {
 
         reservationRepository.save(reservation);
         seatRepository.save(seat);
+
+        notificationService.sendReservationCancelled(
+                reservation.getUser(),
+                reservation
+        );
     }
 }
