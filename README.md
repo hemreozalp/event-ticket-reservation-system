@@ -169,7 +169,3 @@ Skipped: 0
 * Reservation expiration mechanism
 
 ---
-
-## Author
-
-Emre Özalp
