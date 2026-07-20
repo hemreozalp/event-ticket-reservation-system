@@ -1,5 +1,6 @@
 package com.hemreozalp.event_ticket_reservation_system.reservation.service;
 
+import com.hemreozalp.event_ticket_reservation_system.common.exception.*;
 import com.hemreozalp.event_ticket_reservation_system.notification.NotificationService;
 import com.hemreozalp.event_ticket_reservation_system.payment.entity.Payment;
 import com.hemreozalp.event_ticket_reservation_system.payment.entity.PaymentStatus;
@@ -26,6 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional
 public class ReservationService {
+
     private final ReservationRepository reservationRepository;
     private final ReservationMapper reservationMapper;
     private final UserRepository userRepository;
@@ -36,20 +38,20 @@ public class ReservationService {
     public ReservationResponse reserve(ReserveSeatRequest request) {
 
         User user = userRepository.findById(request.userId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(request.userId()));
 
         Seat seat = seatRepository.findById(request.seatId())
-                .orElseThrow(() -> new RuntimeException("Seat not found"));
+                .orElseThrow(() -> new SeatNotFoundException(request.seatId()));
 
         if (seat.getStatus() != SeatStatus.AVAILABLE) {
-            throw new RuntimeException("Seat is not available");
+            throw new SeatNotAvailableException(seat.getId());
         }
 
         if (reservationRepository.existsBySeatIdAndStatus(
                 seat.getId(),
                 ReservationStatus.CONFIRMED
         )) {
-            throw new RuntimeException("Seat is already reserved");
+            throw new SeatAlreadyReservedException(seat.getId());
         }
 
         Reservation reservation = Reservation.builder()
@@ -94,8 +96,13 @@ public class ReservationService {
     }
 
     public void cancel(UUID reservationId) {
+
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Reservation not found"));
+                .orElseThrow(() -> new ReservationNotFoundException(reservationId));
+
+        if (reservation.getStatus() == ReservationStatus.CANCELLED) {
+            throw new IllegalStateException("Reservation is already cancelled.");
+        }
 
         reservation.setStatus(ReservationStatus.CANCELLED);
 

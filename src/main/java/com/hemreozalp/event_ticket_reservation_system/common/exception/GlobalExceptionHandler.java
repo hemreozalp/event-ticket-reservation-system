@@ -1,5 +1,6 @@
 package com.hemreozalp.event_ticket_reservation_system.common.exception;
 
+import com.hemreozalp.event_ticket_reservation_system.common.exception.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -7,40 +8,58 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler({
+            UserNotFoundException.class,
+            EventNotFoundException.class,
+            SeatNotFoundException.class,
+            ReservationNotFoundException.class
+    })
+    public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException ex) {
+
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler({
+            SeatAlreadyReservedException.class,
+            SeatNotAvailableException.class
+    })
+    public ResponseEntity<ErrorResponse> handleConflict(RuntimeException ex) {
+
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+    public ResponseEntity<ErrorResponse> handleBadRequest(IllegalArgumentException ex) {
 
-        Map<String, Object> body = new HashMap<>();
-
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", HttpStatus.BAD_REQUEST.name());
-        body.put("message", ex.getMessage());
-
-        return ResponseEntity
-                .badRequest()
-                .body(body);
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
-    public ResponseEntity<Map<String, Object>> handleOptimisticLocking(
+    public ResponseEntity<ErrorResponse> handleOptimisticLocking(
             ObjectOptimisticLockingFailureException ex) {
 
-        Map<String, Object> body = new HashMap<>();
+        return buildResponse(
+                HttpStatus.CONFLICT,
+                "Seat has already been reserved by another user. Please try again."
+        );
+    }
 
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.CONFLICT.value());
-        body.put("error", HttpStatus.CONFLICT.name());
-        body.put("message", "Seat has already been reserved by another user. Please try again.");
+    private ResponseEntity<ErrorResponse> buildResponse(
+            HttpStatus status,
+            String message
+    ) {
 
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(body);
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                message
+        );
+
+        return ResponseEntity.status(status).body(response);
     }
 }

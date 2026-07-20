@@ -1,5 +1,6 @@
 package com.hemreozalp.event_ticket_reservation_system.event.service;
 
+import com.hemreozalp.event_ticket_reservation_system.common.exception.EventNotFoundException;
 import com.hemreozalp.event_ticket_reservation_system.event.dto.CreateEventRequest;
 import com.hemreozalp.event_ticket_reservation_system.event.dto.EventFilter;
 import com.hemreozalp.event_ticket_reservation_system.event.dto.EventResponse;
@@ -42,7 +43,7 @@ public class EventService {
 
     public EventResponse update(UUID id, UpdateEventRequest request) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+                .orElseThrow(() -> new EventNotFoundException(id));
 
         if (request.endDate().isBefore(request.startDate())) {
             throw new IllegalArgumentException("Invalid date range");
