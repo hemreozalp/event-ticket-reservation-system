@@ -58,7 +58,7 @@ public class EventService {
 
     public void delete(UUID id) {
         if (!eventRepository.existsById(id)) {
-            throw new RuntimeException("Event not found");
+            throw new EventNotFoundException(id);
         }
 
         eventRepository.deleteById(id);
@@ -67,7 +67,7 @@ public class EventService {
     @Transactional(readOnly = true)
     public EventResponse getById(UUID id) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+                .orElseThrow(() -> new EventNotFoundException(id));
 
         return eventMapper.toResponse(event);
     }
