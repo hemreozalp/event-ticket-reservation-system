@@ -1,5 +1,8 @@
 package com.hemreozalp.event_ticket_reservation_system.reservation.service;
 
+import com.hemreozalp.event_ticket_reservation_system.payment.entity.Payment;
+import com.hemreozalp.event_ticket_reservation_system.payment.entity.PaymentStatus;
+import com.hemreozalp.event_ticket_reservation_system.payment.service.PaymentService;
 import com.hemreozalp.event_ticket_reservation_system.reservation.dto.ReservationResponse;
 import com.hemreozalp.event_ticket_reservation_system.reservation.dto.ReserveSeatRequest;
 import com.hemreozalp.event_ticket_reservation_system.reservation.entity.Reservation;
@@ -26,8 +29,10 @@ public class ReservationService {
     private final ReservationMapper reservationMapper;
     private final UserRepository userRepository;
     private final SeatRepository seatRepository;
+    private final PaymentService paymentService;
 
     public ReservationResponse reserve(ReserveSeatRequest request) {
+
         User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -35,7 +40,7 @@ public class ReservationService {
                 .orElseThrow(() -> new RuntimeException("Seat not found"));
 
         if (seat.getStatus() != SeatStatus.AVAILABLE) {
-            throw new RuntimeException("Seat is not availiable");
+            throw new RuntimeException("Seat is not available");
         }
 
         if (reservationRepository.existsBySeatIdAndStatus(
@@ -49,10 +54,25 @@ public class ReservationService {
                 .user(user)
                 .event(seat.getEvent())
                 .seat(seat)
-                .status(ReservationStatus.CONFIRMED)
+                .status(ReservationStatus.PENDING)
                 .build();
 
-        seat.setStatus(SeatStatus.RESERVED);
+        reservation = reservationRepository.save(reservation);
+
+        Payment payment = paymentService.createPayment(reservation);
+
+        if (payment.getStatus() == PaymentStatus.SUCCESS) {
+
+            reservation.setStatus(ReservationStatus.CONFIRMED);
+            seat.setStatus(SeatStatus.RESERVED);
+
+        } else {
+
+            reservation.setStatus(ReservationStatus.CANCELLED);
+            seat.setStatus(SeatStatus.AVAILABLE);
+
+        }
+
         reservationRepository.save(reservation);
         seatRepository.save(seat);
 
